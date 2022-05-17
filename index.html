@@ -2,20 +2,6 @@
 
 <html lang="en">
 
-<!--
-
-		threejs_ex_01_01_basic_skeleton.html
-
-		The basic structure of a Three.js example file
-
-		J. Madeira - March 2021
-
-		Adapted / simplified from 
-
-		https://github.com/mrdoob/three.js/blob/master/examples/webgl_geometry_cube.html
-
--->
-
 <head>
 
 	<title>ICG &mdash; Proj</title>
@@ -28,8 +14,6 @@
 		body {
 
 			background-color: #ffffff;
-
-			/* To use the complete page */
 
 			margin: 0px;
 
@@ -44,20 +28,33 @@
 			left: 10px;
 			font-size: 50px;
 		}
+		.inst {
+			position: absolute;
+			background-color:#808080 ;
+			font-family:"ubuntu", Helvetica, sans-serif;
+    		text-align: center;
+			bottom: 10px;
+			right: 10px;
+			font-size: 20px;
+		}
 	</style>
 
 </head>
 
 <body>
 	<div class="div" id="count_up_timer">00:00:000</div>
-	<!-- The library --- Can be a local version -->
-	<!-- Javascript code that runs the Three.js example -->
+	<div class="inst" > 
+		Key A/a = Toggle fixed light <br>
+		Key L/l = Toggle camera light <br>
+		Key C/c = Change fixed light positon <br>
+		Key R/r = Auto rotate
+	</div>
+	<!-- Javascript code that runs the Three.js and OrbitControls example -->
 	<script type="text/javascript" src="https://threejs.org/build/three.js"></script>
 	<script type="text/javascript" src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
 
 
 	<script type="text/javascript">
-		//import { OrbitControls } from "https://threejs.org/examples/js/controls/OrbitControls.js";
 
 		// Once everything is loaded, run this function
 
@@ -67,6 +64,7 @@
 		var tempFigures = [];
 
 		function init() {
+			//buttons layout and functions
 			container = document.createElement( 'div' );
 			document.body.appendChild( container );
 			info = document.createElement( 'div' );
@@ -96,18 +94,17 @@
 
 			scene = new THREE.Scene();
 
-
 			// The CAMERA
 
 			// --- Where the viewer is and how he is looking at the scene
 
 			camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-			// Position the camera
+			// Initial position the camera
 
 			camera.position.set(-6, 16 , 24);
 			
-			//ligh
+			//Ligh
 			light = new THREE.DirectionalLight( 0xffffff );
 			light.castShadow = true;
 			light.shadow.mapSize.width = Math.pow(2,10);
@@ -121,6 +118,7 @@
 
 			window.addEventListener( 'resize', onWindowResize, false );
 
+			//Disable all buttons when is sorting
 			['button1','button2','button3','button4','button5','button6','button7','button8','button9','button10'].forEach(function(element) {
 				document.getElementById(element).addEventListener("click", function() {
 					if( timerVariable == undefined ) timerVariable = setInterval(countUpTimer, 10);
@@ -147,7 +145,7 @@
 				});
 			});
 			
-
+			//Enable buttons when new board is created
 			document.getElementById('gen').addEventListener("click", function() {
 				clearInterval(timerVariable);
 				totalMilliSeconds = 0;
@@ -175,19 +173,22 @@
 				button10.disabled = false;
 			});
 
+			//Control the buttons
 			document.addEventListener ('keypress', (event) => {
 				const keyName = event.key;
+				//Turn on/off fixed light
 				if( keyName == 'a' || keyName == 'A'){
 					if( ambientLight == undefined ){
 						if( light != undefined) light.intensity = 0.5;
 
+						//light
 						ambientLight = new THREE.DirectionalLight( 0xfdf3c6);
 						ambientLight.position.set( 10,10,10);
 						ambientLight
 						ambientLight.castShadow = true;
 						ambientLight.shadow.mapSize.width = Math.pow(2,10);
 						ambientLight.shadow.mapSize.hight = Math.pow(2,10);
-						//light
+						
 						ambientLight.shadow.camera.left = -m*n
 						ambientLight.shadow.camera.right = m*n
 						ambientLight.shadow.camera.top = m*n
@@ -202,6 +203,7 @@
 					}
 
 				}
+				//Turn on/off camera light
 				if( keyName == 'l' || keyName == 'L'){
 					if( light == undefined ){
 						//ligh
@@ -222,7 +224,7 @@
 
 						controls.target = new THREE.Vector3(Math.floor(m/2),0,Math.floor(n/2));
 						controls.enableDamping = true;
-						//controls.autoRotate = true;
+						
 
 						controls.update();
 					}
@@ -232,12 +234,18 @@
 					}
 
 				}
+				if( keyName == "R" || keyName == "r"){
+					controls.autoRotate = !controls.autoRotate;
+					controls.update();
+				}
+				//Change camera light position
 				if( keyName == 'c' || keyName == 'C') if( ambientLight != undefined ) ambientLight.position.set(camera.position.x, camera.position.y, camera.position.z);
 			});
 
 			renderer.render(scene, camera);
 			animate();
 
+			//Resize window
 			function onWindowResize(){
 
 				camera.aspect = window.innerWidth / window.innerHeight;
@@ -249,6 +257,7 @@
 
 		}
 
+		//
 		function updateVar(){ figures = tempFigures; }
 			
 
@@ -585,13 +594,6 @@
 			return (i + 1);
 		}
 
-		/* The main function that implements QuickSort
-			arr[] --> Array to be sorted,
-			low --> Starting index,
-			high --> Ending index
-		*/
-
-
 		async function quickSort(low, high) {
 			if (low < high) {
 				// pi is partitioning index, arr[p]
@@ -606,9 +608,7 @@
 			}
 		}
 
-		// JavaScript program for implementation
-		// of Heap Sort
- 
+
 		async function heapSort()
 		{
 			var n = figures.length;
@@ -642,8 +642,6 @@
 			}
 		}
  
-		// To heapify a subtree rooted with node i which is
-		// an index in arr[]. n is size of heap
 		async function heapify(n, i)
 		{
 			var largest = i; // Initialize largest as root
@@ -682,7 +680,6 @@
 			}
 		}
 
-		/* function to sort arr using shellSort */
 		async function shellSort()
 		{
 			let n = figures.length;
