@@ -49,7 +49,7 @@
 </head>
 
 <body>
-	<div class="div" id="count_up_timer">00::00::000</div>
+	<div class="div" id="count_up_timer">00:00:000</div>
 	<!-- The library --- Can be a local version -->
 	<!-- Javascript code that runs the Three.js example -->
 	<script type="text/javascript" src="https://threejs.org/build/three.js"></script>
@@ -152,7 +152,7 @@
 				clearInterval(timerVariable);
 				totalMilliSeconds = 0;
 				timerVariable = undefined;
-				document.getElementById("count_up_timer").innerHTML = "00" + "::" + "00" + "::" + "000";
+				document.getElementById("count_up_timer").innerHTML = "00" + ":" + "00" + ":" + "000";
 				let button1 = document.querySelector(".button1");
 				button1.disabled = false;
 				let button2 = document.querySelector(".button2");
@@ -376,7 +376,7 @@
 			s = (s - secs) / 60;
 			var mins = s % 60;
 			var hrs = (s - mins) / 60;
-			document.getElementById("count_up_timer").innerHTML = pad(hrs) + "::" + pad(mins) + "::" + pad(secs) + "::" + pad(ms*10,3);
+			document.getElementById("count_up_timer").innerHTML = pad(mins) + ":" + pad(secs) + ":" + pad(ms*10,3);
 		}
 
 		function changePositionsInstant(){
