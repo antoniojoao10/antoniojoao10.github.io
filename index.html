@@ -184,15 +184,11 @@
 						//light
 						ambientLight = new THREE.DirectionalLight( 0xfdf3c6);
 						ambientLight.position.set( 10,10,10);
-						ambientLight
-						ambientLight.castShadow = true;
-						ambientLight.shadow.mapSize.width = Math.pow(2,10);
-						ambientLight.shadow.mapSize.hight = Math.pow(2,10);
 						
-						ambientLight.shadow.camera.left = -m*n
-						ambientLight.shadow.camera.right = m*n
-						ambientLight.shadow.camera.top = m*n
-						ambientLight.shadow.camera.bottom = -m*n
+						ambientLight.castShadow = true;
+						ambientLight.shadow.mapSize.width = Math.pow(2,m*n+2);
+						ambientLight.shadow.mapSize.hight = Math.pow(2,m*n+2);
+						
 						ambientLight.target.position.set(Math.floor(m/2),0,Math.floor(n/2));
 						ambientLight.target.updateMatrixWorld();
 						scene.add(ambientLight);
@@ -209,13 +205,9 @@
 						//ligh
 						light = new THREE.DirectionalLight( 0xffffff);
 						light.castShadow = true;
-						light.shadow.mapSize.width = Math.pow(2,10);
-						light.shadow.mapSize.hight = Math.pow(2,10);
+						light.shadow.mapSize.width = Math.pow(2,m*n+2);
+						light.shadow.mapSize.hight = Math.pow(2,m*n+2);
 
-						light.shadow.camera.left = -m*n
-						light.shadow.camera.right = m*n
-						light.shadow.camera.top = m*n
-						light.shadow.camera.bottom = -m*n
 						light.target.position.set(Math.floor(m/2),0,Math.floor(n/2));
 						light.target.updateMatrixWorld();
 						camera.add(light);
@@ -319,6 +311,8 @@
 
 			if( light != undefined){
 				//light
+				light.shadow.mapSize.width = Math.pow(2,m*n+2);
+				light.shadow.mapSize.hight = Math.pow(2,m*n+2);
 				light.shadow.camera.left = -m*n
 				light.shadow.camera.right = m*n
 				light.shadow.camera.top = m*n
@@ -328,7 +322,17 @@
 				camera.add(light);
 				
 				scene.add(camera);
-			}if ( ambientLight != undefined) scene.add(ambientLight);
+			}if ( ambientLight != undefined){
+				ambientLight.shadow.mapSize.width = Math.pow(2,m*n+2);
+				ambientLight.shadow.mapSize.hight = Math.pow(2,m*n+2);
+				ambientLight.shadow.camera.left = -m*n
+				ambientLight.shadow.camera.right = m*n
+				ambientLight.shadow.camera.top = m*n
+				ambientLight.shadow.camera.bottom = -m*n
+				ambientLight.target.position.set(Math.floor(m/2),0,Math.floor(n/2));
+				ambientLight.target.updateMatrixWorld();
+				scene.add(ambientLight);
+			} 
 
 			controls.target = new THREE.Vector3(Math.floor(m/2),0,Math.floor(n/2));
 			controls.enableDamping = true;
