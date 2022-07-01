@@ -1,0 +1,117 @@
+sorted2();
+			sorted3();
+			sorted4();
+			sorted5();
+			sorted6();
+			sorted7();
+			sorted8();
+			sorted9();
+			sorted10();
+			function sorted2(){
+				for (var i = 0; i < figBubble.length - 1; i++) {
+					if (figBubble[i].position.y > figBubble[i+1].position.y) {
+						sorted = false;
+						return;
+					}
+				}
+				sorted = true;
+				clearInterval(timerVariable[2]);
+				totalMilliSeconds[2] = 0;
+				timerVariable[2] = undefined;
+			}
+			function sorted3(){
+				for (var i = 0; i < figInsertion.length - 1; i++) {
+					if (figInsertion[i].position.y > figInsertion[i+1].position.y) {
+						sorted = false;
+						return;
+					}
+				}
+				sorted = true;
+				clearInterval(timerVariable[3]);
+				totalMilliSeconds[3] = 0;
+				timerVariable[3] = undefined;
+			}
+			function sorted4(){
+				for (var i = 0; i < figSelection.length - 1; i++) {
+					if (figSelection[i].position.y > figSelection[i+1].position.y) {
+						sorted = false;
+						return;
+					}
+				}
+				sorted = true;
+				clearInterval(timerVariable[4]);
+				totalMilliSeconds[4] = 0;
+				timerVariable[4] = undefined;
+			}
+			function sorted5(){
+				for (var i = 0; i < figQuick.length - 1; i++) {
+					if (figQuick[i].position.y > figQuick[i+1].position.y) {
+						sorted = false;
+						return;
+					}
+				}
+				sorted = true;
+				clearInterval(timerVariable[5]);
+				totalMilliSeconds[5] = 0;
+				timerVariable[5] = undefined;
+			}
+			function sorted6(){
+				for (var i = 0; i < figHeap.length - 1; i++) {
+					if (figHeap[i].position.y > figHeap[i+1].position.y) {
+						sorted = false;
+						return;
+					}
+				}
+				sorted = true;
+				clearInterval(timerVariable[6]);
+				totalMilliSeconds[6] = 0;
+				timerVariable[6] = undefined;
+			}
+			function sorted7(){
+				for (var i = 0; i < figShell.length - 1; i++) {
+					if (figShell[i].position.y > figShell[i+1].position.y) {
+						sorted = false;
+						return;
+					}
+				}
+				sorted = true;
+				clearInterval(timerVariable[7]);
+				totalMilliSeconds[7] = 0;
+				timerVariable[7] = undefined;
+			}
+			function sorted8(){
+				for (var i = 0; i < figCocktail.length - 1; i++) {
+					if (figCocktail[i].position.y > figCocktail[i+1].position.y) {
+						sorted = false;
+						return;
+					}
+				}
+				sorted = true;
+				clearInterval(timerVariable[8]);
+				totalMilliSeconds[8] = 0;
+				timerVariable[8] = undefined;
+			}
+			function sorted9(){
+				for (var i = 0; i < figBitonic.length - 1; i++) {
+					if (figBitonic[i].position.y > figBitonic[i+1].position.y) {
+						sorted = false;
+						return;
+					}
+				}
+				sorted = true;
+				clearInterval(timerVariable[9]);
+				totalMilliSeconds[9] = 0;
+				timerVariable[9] = undefined;
+			}
+			function sorted10(){
+				for (var i = 0; i < figGnome.length - 1; i++) {
+					if (figGnome[i].position.y > figGnome[i+1].position.y) {
+						sorted = false;
+						return;
+					}
+				}
+				sorted = true;
+				clearInterval(timerVariable[10]);
+				totalMilliSeconds[10] = 0;
+				timerVariable[10] = undefined;
+			}
