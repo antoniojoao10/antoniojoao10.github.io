@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+	<title>ICG &mdash; Proj</title>
+
+	<meta charset="utf-8">
+
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+	<style>
+		body {
+
+			background-color: #ffffff;
+
+			margin: 0px;
+
+			overflow: hidden;
+		}
+		.div  {
+			position: absolute;
+			background-color:#808080 ;
+			font-family:"ubuntu", Helvetica, sans-serif;
+    		text-align: center;
+			bottom: 10px;
+			left: 10px;
+			font-size: 50px;
+		}
+		.inst {
+			position: absolute;
+			background-color:#808080 ;
+			font-family:"ubuntu", Helvetica, sans-serif;
+    		text-align: center;
+			bottom: 10px;
+			right: 10px;
+			font-size: 20px;
+		}
+	</style>
+
+</head>
+
+<body>
+	<div class="div" id="count_up_timer">00:00:000</div>
+	<div class="inst" > 
+		Key A/a = Toggle fixed light <br>
+		Key L/l = Toggle camera light <br>
+		Key C/c = Change fixed light positon <br>
+		Key R/r = Auto rotate
+	</div>
+	<!-- Javascript code that runs the Three.js and OrbitControls example -->
+	<script type="text/javascript" src="https://threejs.org/build/three.js"></script>
+	<script type="text/javascript" src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
+
+
+	<script type="text/javascript">
+
+		// Once everything is loaded, run this function
+
+		var renderer, n=3, m=3, scene, info, camera, controls,light, ambientLight;
+		
+		var figures = []; // figuresay for the figures with random heights	
+		var tempFigures = [];
+
+		function init() {
+			//buttons layout and functions
+			container = document.createElement( 'div' );
+			document.body.appendChild( container );
+			info = document.createElement( 'div' );
+			info.style.position = 'absolute';
+			info.style.top = '5px';
+			info.style.width = '100%';
+			info.style.textAlign = 'center';
+			info.innerHTML = '<span style="color: #0x808080; background-color: #0x808080; padding: 4px 2px; text-transform: uppercase;"><input type="text" value="3" id="m"><input type="text" value="3" id="n"><button id="gen" onClick="getInputValue()">Generate Board</a><button id="button1" class="button1" onClick="updateVar();bubbleSortInstant()">Instant Sort</a><button id="button2" class="button2" onClick="updateVar();bubbleSort()">Bubble Sort</a><button id="button3" class="button3" onClick="updateVar();insertionSort()">Insertion Sort</a><button id="button4" class="button4" onClick="updateVar();selectionSort()">Selection Sort</a><button id="button5" class="button5" onClick="updateVar();quickSort(0,figures.length-1)">Quick Sort</a><button id="button6" class="button6" onClick="updateVar();heapSort()">Heap Sort</a><button id="button7" class="button7" onClick="updateVar();shellSort()">Shell Sort</a><button id="button8" class="button8" onClick="updateVar();cocktailSort()">Cocktail Sort</a><button id="button9" class="button9" onClick="updateVar();bitonicSort()">Bitonic Sort</a><button id="button10" class="button10" onClick="updateVar();gnomeSort(figures.length)">Gnome Sort</a></span>';
+			container.appendChild( info );
+			// The RENDERER --- To display the scene on the Web page
+
+			renderer = new THREE.WebGLRenderer({ antialias: true });
+			
+			renderer.setClearColor(new THREE.Color(0x808080));
+
+			renderer.setPixelRatio(window.devicePixelRatio);
+
+			renderer.setSize(window.innerWidth, window.innerHeight);
+
+			renderer.shadowMap.enabled = true;
+
+			// Add the output of the renderer
+
+			document.body.appendChild(renderer.domElement);
+
+			// The SCENE
+
+			scene = new THREE.Scene();
+
+			// The CAMERA
+
+			// --- Where the viewer is and how he is looking at the scene
+
+			camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+			// Initial position the camera
+
+			camera.position.set(-6, 16 , 24);
+			
+			//Ligh
+			light = new THREE.DirectionalLight( 0xffffff );
+			light.castShadow = true;
+			light.shadow.mapSize.width = Math.pow(2,10);
+			light.shadow.mapSize.hight = Math.pow(2,10);
+
+			// Controlls Point the camera to the center of the scene
+			controls = new THREE.OrbitControls( camera, renderer.domElement );
+			controls.maxPolarAngle = Math.PI / 2;	
+
+			generateBoard();
+
+			window.addEventListener( 'resize', onWindowResize, false );
+
+			//Disable all buttons when is sorting
+			['button1','button2','button3','button4','button5','button6','button7','button8','button9','button10'].forEach(function(element) {
+				document.getElementById(element).addEventListener("click", function() {
+					if( timerVariable == undefined ) timerVariable = setInterval(countUpTimer, 10);
+					let button1 = document.querySelector(".button1");
+					button1.disabled = true;
+					let button2 = document.querySelector(".button2");
+					button2.disabled = true;
+					let button3 = document.querySelector(".button3");
+					button3.disabled = true;
+					let button4 = document.querySelector(".button4");
+					button4.disabled = true;
+					let button5 = document.querySelector(".button5");
+					button5.disabled = true;
+					let button6 = document.querySelector(".button6");
+					button6.disabled = true;
+					let button7 = document.querySelector(".button7");
+					button7.disabled = true;
+					let button8 = document.querySelector(".button8");
+					button8.disabled = true;
+					let button9 = document.querySelector(".button9");
+					button9.disabled = true;
+					let button10 = document.querySelector(".button10");
+					button10.disabled = true;
+				});
+			});
+			
+			//Enable buttons when new board is created
+			document.getElementById('gen').addEventListener("click", function() {
+				clearInterval(timerVariable);
+				totalMilliSeconds = 0;
+				timerVariable = undefined;
+				document.getElementById("count_up_timer").innerHTML = "00" + ":" + "00" + ":" + "000";
+				let button1 = document.querySelector(".button1");
+				button1.disabled = false;
+				let button2 = document.querySelector(".button2");
+				button2.disabled = false;
+				let button3 = document.querySelector(".button3");
+				button3.disabled = false;
+				let button4 = document.querySelector(".button4");
+				button4.disabled = false;
+				let button5 = document.querySelector(".button5");
+				button5.disabled = false;
+				let button6 = document.querySelector(".button6");
+				button6.disabled = false;
+				let button7 = document.querySelector(".button7");
+				button7.disabled = false;
+				let button8 = document.querySelector(".button8");
+				button8.disabled = false;
+				let button9 = document.querySelector(".button9");
+				button9.disabled = false;
+				let button10 = document.querySelector(".button10");
+				button10.disabled = false;
+			});
+
+			//Control the buttons
+			document.addEventListener ('keypress', (event) => {
+				const keyName = event.key;
+				//Turn on/off fixed light
+				if( keyName == 'a' || keyName == 'A'){
+					if( ambientLight == undefined ){
+						if( light != undefined) light.intensity = 0.5;
+
+						//light
+						ambientLight = new THREE.DirectionalLight( 0xfdf3c6);
+						ambientLight.position.set( 10,10,10);
+						
+						ambientLight.castShadow = true;
+						ambientLight.shadow.mapSize.width = Math.pow(2,m*n+2);
+						ambientLight.shadow.mapSize.hight = Math.pow(2,m*n+2);
+						
+						ambientLight.target.position.set(Math.floor(m/2),0,Math.floor(n/2));
+						ambientLight.target.updateMatrixWorld();
+						scene.add(ambientLight);
+					}
+					else{
+						scene.remove(ambientLight);
+						ambientLight = undefined;
+					}
+
+				}
+				//Turn on/off camera light
+				if( keyName == 'l' || keyName == 'L'){
+					if( light == undefined ){
+						//ligh
+						light = new THREE.DirectionalLight( 0xffffff);
+						light.castShadow = true;
+						light.shadow.mapSize.width = Math.pow(2,m*n+2);
+						light.shadow.mapSize.hight = Math.pow(2,m*n+2);
+
+						light.target.position.set(Math.floor(m/2),0,Math.floor(n/2));
+						light.target.updateMatrixWorld();
+						camera.add(light);
+						
+						scene.add(camera);
+
+						controls.target = new THREE.Vector3(Math.floor(m/2),0,Math.floor(n/2));
+						controls.enableDamping = true;
+						
+
+						controls.update();
+					}
+					else{
+						camera.remove(light);
+						light = undefined;
+					}
+
+				}
+				if( keyName == "R" || keyName == "r"){
+					controls.autoRotate = !controls.autoRotate;
+					controls.update();
+				}
+				//Change camera light position
+				if( keyName == 'c' || keyName == 'C') if( ambientLight != undefined ) ambientLight.position.set(camera.position.x, camera.position.y, camera.position.z);
+			});
+
+			renderer.render(scene, camera);
+			animate();
+
+			//Resize window
+			function onWindowResize(){
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+		}
+
+		//
+		function updateVar(){ figures = tempFigures; }
+			
+
+		function getInputValue(){
+				// Selecting the input element and get its value 
+				this.m = document.getElementById("m").value;
+				this.n = document.getElementById("n").value;
+				generateBoard();
+        }
+
+		function generateBoard()
+		{
+			figures = [];
+			//clear scene
+			while(scene.children.length > 0){ 
+				scene.remove(scene.children[0]); 
+			}
+			
+
+			// The GROUND board
+			var boardGeometry = new THREE.BoxGeometry(1, 0.1, 1);
+			var boardMaterialLight = new THREE.MeshStandardMaterial({ color: 0xffffff});
+			var boardMaterialBlack = new THREE.MeshStandardMaterial({ color: 0x00ff00});
+			var board = new THREE.Group();
+			//color ground
+			for( let x = 0; x < m; x++){
+				for( let z = 0; z < n; z++){
+					if( z % 2 == false) {
+						var square;
+						square = new THREE.Mesh( boardGeometry, x % 2 == false ? boardMaterialLight : boardMaterialBlack);
+					}else{
+						square = new THREE.Mesh( boardGeometry, x % 2 == false ? boardMaterialBlack : boardMaterialLight);
+					}
+					square.position.set(x,0,z);
+					//square.castShadow = true;
+					square.receiveShadow = true;
+					board.add(square);
+
+					var tmp = parseInt(m) + parseInt(n);
+					var upper = tmp/2;
+					var lower = 0;
+					var high = (Math.random() * (upper - lower)) + lower;
+					var figGeo = new THREE.BoxGeometry(0.5 , high , 0.5);
+					var figMat = new THREE.MeshStandardMaterial({ color: Math.random() * 0xffffff});
+					var fig = new THREE.Mesh( figGeo, figMat);
+					fig.position.set(x, high/2 + 0.05 ,z);
+					fig.castShadow = true;
+					fig.receiveShadow = true;
+					fig.shininess = 50;
+					figures.push(fig);
+					board.add(fig);
+					
+				}
+			}
+			scene.add(board);
+
+			tempFigures = figures;
+			figures = [];
+
+			if( light != undefined){
+				//light
+				light.shadow.mapSize.width = Math.pow(2,m*n+2);
+				light.shadow.mapSize.hight = Math.pow(2,m*n+2);
+				light.shadow.camera.left = -m*n
+				light.shadow.camera.right = m*n
+				light.shadow.camera.top = m*n
+				light.shadow.camera.bottom = -m*n
+				light.target.position.set(Math.floor(m/2),0,Math.floor(n/2));
+				light.target.updateMatrixWorld();
+				camera.add(light);
+				
+				scene.add(camera);
+			}if ( ambientLight != undefined){
+				ambientLight.shadow.mapSize.width = Math.pow(2,m*n+2);
+				ambientLight.shadow.mapSize.hight = Math.pow(2,m*n+2);
+				ambientLight.shadow.camera.left = -m*n
+				ambientLight.shadow.camera.right = m*n
+				ambientLight.shadow.camera.top = m*n
+				ambientLight.shadow.camera.bottom = -m*n
+				ambientLight.target.position.set(Math.floor(m/2),0,Math.floor(n/2));
+				ambientLight.target.updateMatrixWorld();
+				scene.add(ambientLight);
+			} 
+
+			controls.target = new THREE.Vector3(Math.floor(m/2),0,Math.floor(n/2));
+			controls.enableDamping = true;
+
+			//controls.autoRotate = true;
+
+			controls.update();
+
+			renderer.render( scene, camera );
+			
+		}
+
+		function animate() 
+		{
+			requestAnimationFrame( animate );
+			// required if controls.enableDamping or controls.autoRotate are set to true
+			controls.update();
+			sorted();
+			function sorted(){
+				for (var i = 0; i < figures.length - 1; i++) {
+					if (figures[i].position.y > figures[i+1].position.y) {
+						sorted = false;
+						return;
+					}
+				}
+				sorted = true;
+				clearInterval(timerVariable);
+				totalMilliSeconds = 0;
+				timerVariable = undefined;
+			}
+			if( sorted ) clearInterval(timerVariable);
+
+			
+			renderer.render( scene, camera );
+		}
+
+		
+
+		var timerVariable;
+		var totalMilliSeconds = 0;
+		var sorted = false;
+
+		async function countUpTimer() {
+			// Pad to 2 or 3 digits, default is 2
+			function pad(n, z) {
+				z = z || 2;
+				return ('00' + n).slice(-z);
+			}
+			++totalMilliSeconds;
+			var s = totalMilliSeconds;
+			var ms = s % 100;
+			s = (s - ms) / 100;
+			var secs = s % 60;
+			s = (s - secs) / 60;
+			var mins = s % 60;
+			var hrs = (s - mins) / 60;
+			document.getElementById("count_up_timer").innerHTML = pad(mins) + ":" + pad(secs) + ":" + pad(ms*10,3);
+		}
+
+		function changePositionsInstant(){
+			// instant change of positions
+			a.position.x = bx;
+			a.position.z = bz;
+			b.position.x = ax;
+			b.position.z = az;
+		}
+
+		var step = 0, times = 0;
+		var a , ax, az, b, bx, bz, angleA, angleB, zmid, xmid;
+		var requestID;
+
+
+		function changePositionsRot(){
+			if ( Math.round(3.14 / 0.1) == times ){
+				a.position.x = bx;
+				a.position.z = bz;
+				b.position.x = ax;
+				b.position.z = az;
+				step = 0;
+				times = 0;	
+				return false;
+			}
+			
+			var r = Math.sqrt( (ax - bx)*(ax - bx) + (az - bz)*(az - bz)) / 2;
+			step += 0.1;
+			times ++;
+
+			
+			a.position.x = xmid + r * Math.cos( angleB + step);
+			a.position.z = zmid + r * Math.sin( angleB + step);
+			b.position.x = xmid + r * Math.cos( angleA - step);
+			b.position.z = zmid + r * Math.sin( angleA - step);
+			return true;
+		}
+
+		function bubbleSortInstant()
+		{	
+			var len = figures.length;
+			cancelAnimationFrame(requestID);
+			for (var i = 0; i < len - 1; i++)
+				for (var j = 0; j < len - i - 1; j++)
+					if (figures[j].position.y > figures[j + 1].position.y ) {
+						// swap figures[j+1] and figures[j]
+						var temp = figures[j];
+						figures[j] = figures[j + 1];
+						figures[j + 1] = temp;
+						a = figures[j];
+						ax = figures[j].position.x;
+						az = figures[j].position.z;
+						b = figures[j+1];
+						bx = figures[j+1].position.x;
+						bz = figures[j+1].position.z;
+						changePositionsInstant();
+					
+					}
+			renderer.render( scene, camera );
+		}
+
+		async function bubbleSort()
+		{	
+			var len = figures.length;
+			for (var i = 0; i < len - 1; i++)
+				for (var j = 0; j < len - i - 1; j++)
+					if (figures[j].position.y > figures[j + 1].position.y ) {
+						// swap figures[j+1] and figures[j]
+						var temp = figures[j];
+						figures[j] = figures[j + 1];
+						figures[j + 1] = temp;
+						a = figures[j];
+						ax = figures[j].position.x;
+						az = figures[j].position.z;
+						b = figures[j+1];
+						bx = figures[j+1].position.x;
+						bz = figures[j+1].position.z;
+						xmid = (parseInt(ax) + parseInt(bx)) / 2;
+						zmid = (parseInt(az) + parseInt(bz)) / 2;
+						angleA = Math.atan2( zmid - a.position.z,xmid - a.position.x);
+						angleB = Math.atan2( zmid - b.position.z,xmid - b.position.x);
+
+						while( changePositionsRot()) await new Promise( requestAnimationFrame);
+						
+					}
+		}
+
+		async function insertionSort()
+		{
+			var n = figures.length;
+			for (var i = 1; i < n; ++i) {
+				var key = figures[i].position.y;
+				var j  = i - 1; 
+				/* Move elements of arr[0..i-1], that are
+				greater than key, to one position ahead
+				of their current position */
+				while (j >= 0 && figures[j].position.y > key) {
+					var temp = figures[j];
+					figures[j] = figures[j + 1];
+					figures[j + 1] = temp;
+					a = figures[j];
+					ax = figures[j].position.x;
+					az = figures[j].position.z;
+					b = figures[j+1];
+					bx = figures[j+1].position.x;
+					bz = figures[j+1].position.z;
+					xmid = (parseInt(ax) + parseInt(bx)) / 2;
+					zmid = (parseInt(az) + parseInt(bz)) / 2;
+					angleA = Math.atan2( zmid - a.position.z,xmid - a.position.x);
+					angleB = Math.atan2( zmid - b.position.z,xmid - b.position.x);
+					j = j - 1;
+
+					while( changePositionsRot()) await new Promise(requestAnimationFrame);
+
+				}
+			}
+		}
+
+
+		async function selectionSort()
+		{
+			var i, j, min_idx;
+			var n = figures.length;
+			// One by one move boundary of unsorted subarray
+			for (i = 0; i < n-1; i++)
+			{
+				// Find the minimum element in unsorted array
+				min_idx = i;
+				for (j = i + 1; j < n; j++)
+				if (figures[j].position.y < figures[min_idx].position.y)
+					min_idx = j;
+				
+				var temp = figures[min_idx];
+				figures[min_idx] = figures[i];
+				figures[i] = temp;
+				a = figures[min_idx];
+				ax = figures[min_idx].position.x;
+				az = figures[min_idx].position.z;
+				b = figures[i];
+				bx = figures[i].position.x;
+				bz = figures[i].position.z;
+				xmid = (parseInt(ax) + parseInt(bx)) / 2;
+				zmid = (parseInt(az) + parseInt(bz)) / 2;
+				angleA = Math.atan2( zmid - a.position.z,xmid - a.position.x);
+				angleB = Math.atan2( zmid - b.position.z,xmid - b.position.x);
+
+				// Swap the found minimum element with the first element
+				//swap(min_idx, i);
+				while( changePositionsRot()) await new Promise(requestAnimationFrame);
+			}
+		}
+
+		async function partition(low, high) {
+ 
+			// pivot
+			let pivot = figures[high];
+
+			// Index of smaller element and
+			// indicates the right position
+			// of pivot found so far
+			let i = (low - 1);
+
+			for (let j = low; j <= high - 1; j++) {
+
+				// If current element is smaller
+				// than the pivot
+				if (figures[j].position.y < pivot.position.y) {
+
+					// Increment index of
+					// smaller element
+					i++;
+					var temp = figures[i];
+					figures[i] = figures[j];
+					figures[j] = temp;
+					a = figures[i];
+					ax = figures[i].position.x;
+					az = figures[i].position.z;
+					b = figures[j];
+					bx = figures[j].position.x;
+					bz = figures[j].position.z;
+					xmid = (parseInt(ax) + parseInt(bx)) / 2;
+					zmid = (parseInt(az) + parseInt(bz)) / 2;
+					angleA = Math.atan2( zmid - a.position.z,xmid - a.position.x);
+					angleB = Math.atan2( zmid - b.position.z,xmid - b.position.x);
+					// Swap the found minimum element with the first element
+					//swap(min_idx, i);
+					while( changePositionsRot()) await new Promise(requestAnimationFrame);
+				}
+			}
+
+			var temp = figures[i+ 1];
+			figures[i+ 1] = figures[high];
+			figures[high] = temp;
+			a = figures[i+ 1];
+			ax = figures[i+ 1].position.x;
+			az = figures[i+ 1].position.z;
+			b = figures[high];
+			bx = figures[high].position.x;
+			bz = figures[high].position.z;
+			xmid = (parseInt(ax) + parseInt(bx)) / 2;
+			zmid = (parseInt(az) + parseInt(bz)) / 2;
+			angleA = Math.atan2( zmid - a.position.z,xmid - a.position.x);
+			angleB = Math.atan2( zmid - b.position.z,xmid - b.position.x);
+			while( changePositionsRot()) await new Promise(requestAnimationFrame);
+
+			return (i + 1);
+		}
+
+		async function quickSort(low, high) {
+			if (low < high) {
+				// pi is partitioning index, arr[p]
+				// is now at right place
+
+				let pi = await partition(low, high);
+
+				// Separately sort elements before
+				// partition and after partition
+				await quickSort(low, pi - 1);
+				await quickSort(pi + 1, high);
+			}
+		}
+
+
+		async function heapSort()
+		{
+			var n = figures.length;
+	
+			// Build heap (rearrange array)
+			for (var i = Math.floor(n / 2) - 1; i >= 0; i--)
+				await heapify(n, i);
+	
+			// One by one extract an element from heap
+			for (var i = n - 1; i > 0; i--) {
+				// Move current root to end
+				var temp = figures[0];
+				figures[0] = figures[i];
+				figures[i] = temp;
+				a = figures[0];
+				ax = figures[0].position.x;
+				az = figures[0].position.z;
+				b = figures[i];
+				bx = figures[i].position.x;
+				bz = figures[i].position.z;
+				xmid = (parseInt(ax) + parseInt(bx)) / 2;
+				zmid = (parseInt(az) + parseInt(bz)) / 2;
+				angleA = Math.atan2( zmid - a.position.z,xmid - a.position.x);
+				angleB = Math.atan2( zmid - b.position.z,xmid - b.position.x);
+				// Swap the found minimum element with the first element
+
+				while( changePositionsRot()) await new Promise(requestAnimationFrame);
+	
+				// call max heapify on the reduced heap
+				await heapify(i, 0);
+			}
+		}
+ 
+		async function heapify(n, i)
+		{
+			var largest = i; // Initialize largest as root
+			var l = 2 * i + 1; // left = 2*i + 1
+			var r = 2 * i + 2; // right = 2*i + 2
+	
+			// If left child is larger than root
+			if (l < n && figures[l].position.y > figures[largest].position.y)
+				largest = l;
+	
+			// If right child is larger than largest so far
+			if (r < n && figures[r].position.y > figures[largest].position.y)
+				largest = r;
+	
+			// If largest is not root
+			if (largest != i) {
+				var temp = figures[i];
+				figures[i] = figures[largest];
+				figures[largest] = temp;
+				a = figures[i];
+				ax = figures[i].position.x;
+				az = figures[i].position.z;
+				b = figures[largest];
+				bx = figures[largest].position.x;
+				bz = figures[largest].position.z;
+				xmid = (parseInt(ax) + parseInt(bx)) / 2;
+				zmid = (parseInt(az) + parseInt(bz)) / 2;
+				angleA = Math.atan2( zmid - a.position.z,xmid - a.position.x);
+				angleB = Math.atan2( zmid - b.position.z,xmid - b.position.x);
+				// Swap the found minimum element with the first element
+
+				while( changePositionsRot()) await new Promise(requestAnimationFrame);
+	
+				// Recursively heapify the affected sub-tree
+				await heapify(n, largest);
+			}
+		}
+
+		async function shellSort()
+		{
+			let n = figures.length;
+		
+				// Start with a big gap, then reduce the gap
+				for (let gap = Math.floor(n/2); gap > 0; gap = Math.floor(gap/2))
+				{
+				
+					// Do a gapped insertion sort for this gap size.
+					// The first gap elements a[0..gap-1] are already
+					// in gapped order keep adding one more element
+					// until the entire array is gap sorted
+					for (let i = gap; i < n; i += 1)
+					{
+					
+						// add a[i] to the elements that have been gap
+						// sorted save a[i] in temp and make a hole at
+						// position i
+						let temp = figures[i];
+
+						// shift earlier gap-sorted elements up until
+						// the correct location for a[i] is found
+						let j;
+						for (j = i; j >= gap && figures[j - gap].position.y > temp.position.y ; j -= gap){
+							//figures[j] = figures[j - gap];
+							var swap = figures[j];
+							figures[j] = figures[j - gap];
+							figures[j - gap] = swap;
+							a = figures[j];
+							ax = figures[j].position.x;
+							az = figures[j].position.z;
+							b = figures[j - gap];
+							bx = figures[j - gap].position.x;
+							bz = figures[j - gap].position.z;
+							xmid = (parseInt(ax) + parseInt(bx)) / 2;
+							zmid = (parseInt(az) + parseInt(bz)) / 2;
+							angleA = Math.atan2( zmid - a.position.z,xmid - a.position.x);
+							angleB = Math.atan2( zmid - b.position.z,xmid - b.position.x);
+							// Swap the found minimum element with the first element
+
+							while( changePositionsRot()) await new Promise(requestAnimationFrame);
+						}
+
+						// put temp (the original a[i]) in its correct
+						// location
+						//figures[j] = temp;
+					}
+				}
+		}
+
+		async function cocktailSort()
+		{
+			let swapped = true;
+			let start = 0;
+			let end = figures.length;
+	
+			while (swapped == true) {
+	
+				// reset the swapped flag on entering the
+				// loop, because it might be true from a
+				// previous iteration.
+				swapped = false;
+	
+				// loop from bottom to top same as
+				// the bubble sort
+				for (let i = start; i < end - 1; ++i) {
+					if (figures[i].position.y > figures[i + 1].position.y) {
+						var temp = figures[i];
+						figures[i] = figures[i + 1];
+						figures[i + 1] = temp;
+						a = figures[i];
+						ax = figures[i].position.x;
+						az = figures[i].position.z;
+						b = figures[i + 1];
+						bx = figures[i + 1].position.x;
+						bz = figures[i + 1].position.z;
+						xmid = (parseInt(ax) + parseInt(bx)) / 2;
+						zmid = (parseInt(az) + parseInt(bz)) / 2;
+						angleA = Math.atan2( zmid - a.position.z,xmid - a.position.x);
+						angleB = Math.atan2( zmid - b.position.z,xmid - b.position.x);
+						// Swap the found minimum element with the first element
+
+						while( changePositionsRot()) await new Promise(requestAnimationFrame);
+						swapped = true;
+					}
+				}
+	
+				// if nothing moved, then array is sorted.
+				if (swapped == false)
+					break;
+	
+				// otherwise, reset the swapped flag so that it
+				// can be used in the next stage
+				swapped = false;
+	
+				// move the end point back by one, because
+				// item at the end is in its rightful spot
+				end = end - 1;
+	
+				// from top to bottom, doing the
+				// same comparison as in the previous stage
+				for (let i = end - 1; i >= start; i--) {
+					if (figures[i].position.y > figures[i + 1].position.y) {
+						var temp = figures[i];
+						figures[i] = figures[i + 1];
+						figures[i + 1] = temp;
+						a = figures[i];
+						ax = figures[i].position.x;
+						az = figures[i].position.z;
+						b = figures[i + 1];
+						bx = figures[i + 1].position.x;
+						bz = figures[i + 1].position.z;
+						xmid = (parseInt(ax) + parseInt(bx)) / 2;
+						zmid = (parseInt(az) + parseInt(bz)) / 2;
+						angleA = Math.atan2( zmid - a.position.z,xmid - a.position.x);
+						angleB = Math.atan2( zmid - b.position.z,xmid - b.position.x);
+						// Swap the found minimum element with the first element
+
+						while( changePositionsRot()) await new Promise(requestAnimationFrame);
+						swapped = true;
+					}
+				}
+	
+				// increase the starting point, because
+				// the last stage would have moved the next
+				// smallest number to its rightful spot.
+				start = start + 1;
+			}
+		}
+
+		async function bitonicSort() {
+			window.alert("It can only be applied on boards with number of elements equal to a power of 2")
+			let n = figures.length;
+			let k, j, l, i, temp;
+			for (k = 2; k <= n; k *= 2) {
+				for (j = k/2; j > 0; j /= 2) {
+					for (i = 0; i < n; i++) {
+						l = i ^ j;
+						if (l > i) {
+							if ( ((i&k)==0) && (figures[i].position.y > figures[l].position.y ) || ( ( (i&k)!=0) && (figures[i].position.y < figures[l].position.y )) )  {
+								temp = figures[i];
+								figures[i] = figures[l];
+								figures[l] = temp;
+								a = figures[i];
+								ax = figures[i].position.x;
+								az = figures[i].position.z;
+								b = figures[l];
+								bx = figures[l].position.x;
+								bz = figures[l].position.z;
+								xmid = (parseInt(ax) + parseInt(bx)) / 2;
+								zmid = (parseInt(az) + parseInt(bz)) / 2;
+								angleA = Math.atan2( zmid - a.position.z,xmid - a.position.x);
+								angleB = Math.atan2( zmid - b.position.z,xmid - b.position.x);
+								// Swap the found minimum element with the first element
+
+								while( changePositionsRot()) await new Promise(requestAnimationFrame);
+							}
+						}
+					}
+				}
+			}
+		}
+
+		async function gnomeSort(n)
+		{
+			let index = 0;
+			while (index < n) {
+				if (index == 0)
+					index++;
+				if (figures[index].position.y >= figures[index - 1].position.y)
+					index++;
+				else {
+					let temp = 0;
+					temp = figures[index];
+					figures[index] = figures[index - 1];
+					figures[index - 1] = temp;
+					a = figures[index];
+					ax = figures[index].position.x;
+					az = figures[index].position.z;
+					b = figures[index - 1];
+					bx = figures[index - 1].position.x;
+					bz = figures[index - 1].position.z;
+					xmid = (parseInt(ax) + parseInt(bx)) / 2;
+					zmid = (parseInt(az) + parseInt(bz)) / 2;
+					angleA = Math.atan2( zmid - a.position.z,xmid - a.position.x);
+					angleB = Math.atan2( zmid - b.position.z,xmid - b.position.x);
+					// Swap the found minimum element with the first eleme
+					while( changePositionsRot()) await new Promise(requestAnimationFrame);
+					index--;
+				}
+			}
+			return;
+		}
+		window.onload = init
+
+	</script>
+
+</body>
+
+</html>
