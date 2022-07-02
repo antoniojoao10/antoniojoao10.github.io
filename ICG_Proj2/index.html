@@ -82,10 +82,12 @@
 		00:00:000 <br>
 	</div>
 	<div class="inst" > 
+		ArrowKeys to change target board <br>
 		Key A/a = Toggle fixed light <br>
 		Key L/l = Toggle camera light <br>
 		Key C/c = Change fixed light positon <br>
-		Key R/r = Auto rotate
+		Key R/r = Auto rotate <br>
+		Key B/b = Center camera position
 	</div>
 	<!-- Javascript code that runs the Three.js and OrbitControls example -->
 	<script type="text/javascript" src="https://threejs.org/build/three.js"></script>
@@ -154,7 +156,7 @@
 
 			// Initial position the camera
 
-			camera.position.set(-6, 16 , 24);
+			camera.position.set(-12, 16 , 8);
 			
 			//Ligh
 			light = new THREE.DirectionalLight( 0xffffff );
@@ -269,6 +271,32 @@
 					}else{
 						if(positionCam==8) positionCam = 0;
 						else positionCam++;
+					}
+					if(positionCam==0 || positionCam==1 || positionCam==2){
+						pz=positionCam;
+						px=0
+					}else if(positionCam==3 || positionCam==4 || positionCam==5){
+						pz=positionCam-3;
+						px=1;
+					}else{
+						pz=positionCam-6;
+						px=2;
+					}
+					controls.target = new THREE.Vector3((m*px+sB*px)+(m-1)/2, 0,(n*pz+sB*pz)+(n-1)/2 );
+					if(ambientLight != undefined) ambientLight.target.position.set((m*px+sB*px)+(m-1)/2, 0,(n*pz+sB*pz)+(n-1)/2 );
+					if(light != undefined)light.target.position.set((m*px+sB*px)+(m-1)/2, 0,(n*pz+sB*pz)+(n-1)/2 );
+				}
+				if( keyName == 'b' || keyName == 'B'){
+					positionCam = 4;
+					if(positionCam==0 || positionCam==1 || positionCam==2){
+						pz=positionCam;
+						px=0
+					}else if(positionCam==3 || positionCam==4 || positionCam==5){
+						pz=positionCam-3;
+						px=1;
+					}else{
+						pz=positionCam-6;
+						px=2;
 					}
 					if(positionCam==0 || positionCam==1 || positionCam==2){
 						pz=positionCam;
