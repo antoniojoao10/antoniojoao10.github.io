@@ -96,12 +96,13 @@
 
 		// Once everything is loaded, run this function
 
-		var renderer, n=3, m=3, scene, info, camera, controls,light, ambientLight, sB=5;
+		var renderer, n=3, m=3, scene, info, camera, controls,light, ambientLight, sB=4;
 		
 		var figures = []; // figuresay for the figures with random heights	
 		var tempFigures = [];
 		var figBubble=[], figInsertion=[], figSelection=[], figQuick=[], figHeap=[], figShell=[], figCocktail=[], figBitonic=[], figGnome=[], names=[];
 		var namet=["","","","","","","","","","","","",""];
+		var positionCam;
 
 		function init() {
 			//buttons layout and functions
@@ -247,9 +248,42 @@
 			});
 
 			//Control the buttons
-			document.addEventListener ('keypress', (event) => {
+			document.addEventListener ('keydown', (event) => {
 				const keyName = event.key;
 				//Turn on/off fixed light
+				var px, pz;
+				if(positionCam==0 || positionCam==1 || positionCam==2){
+					pz=positionCam;
+					px=0
+				}else if(positionCam==3 || positionCam==4 || positionCam==5){
+					pz=positionCam-3;
+					px=1;
+				}else{
+					pz=positionCam-6;
+					px=2;
+				}
+				if( keyName == "ArrowLeft" || keyName == "ArrowRight"){
+					if(keyName == "ArrowLeft" ){
+						if(positionCam==0) positionCam = 8;
+						else positionCam--;
+					}else{
+						if(positionCam==8) positionCam = 0;
+						else positionCam++;
+					}
+					if(positionCam==0 || positionCam==1 || positionCam==2){
+						pz=positionCam;
+						px=0
+					}else if(positionCam==3 || positionCam==4 || positionCam==5){
+						pz=positionCam-3;
+						px=1;
+					}else{
+						pz=positionCam-6;
+						px=2;
+					}
+					controls.target = new THREE.Vector3((m*px+sB*px)+(m-1)/2, 0,(n*pz+sB*pz)+(n-1)/2 );
+					if(ambientLight != undefined) ambientLight.target.position.set((m*px+sB*px)+(m-1)/2, 0,(n*pz+sB*pz)+(n-1)/2 );
+					if(light != undefined)light.target.position.set((m*px+sB*px)+(m-1)/2, 0,(n*pz+sB*pz)+(n-1)/2 );
+				}
 				if( keyName == 'a' || keyName == 'A'){
 					if( ambientLight == undefined ){
 						//light
@@ -265,7 +299,7 @@
 						ambientLight.shadow.camera.top = ((m+1) * 3);
 						ambientLight.shadow.camera.bottom = -((m+1) * 3);
 						
-						ambientLight.target.position.set(Math.ceil(((m+sB) * 3 -sB)/ 2)-1,0,Math.ceil(((n+sB) * 3 -sB)/ 2)-1);
+						ambientLight.target.position.set((m*px+sB*px)+(m-1)/2, 0,(n*pz+sB*pz)+(n-1)/2 );
 						ambientLight.target.updateMatrixWorld();
 						scene.add(ambientLight);
 					}
@@ -289,12 +323,11 @@
 						light.shadow.camera.top = ((m+1) * 3);
 						light.shadow.camera.bottom = -((m+1) * 3);
 						
-						light.target.position.set(Math.ceil(((m+sB) * 3 -sB)/ 2)-1,0,Math.ceil(((n+sB) * 3 -sB)/ 2)-1);
+						light.target.position.set((m*px+sB*px)+(m-1)/2, 0,(n*pz+sB*pz)+(n-1)/2 );
+						light.target.updateMatrixWorld();
 						camera.add(light);
 						
-						scene.add(camera);
-
-						controls.target = new THREE.Vector3(Math.ceil(((m+sB) * 3 -sB)/ 2)-1,0,Math.ceil(((n+sB) * 3 -sB)/ 2)-1);
+						scene.add(camera,light.target);
 						controls.enableDamping = true;
 						
 					}
@@ -311,6 +344,7 @@
 				//Change camera light position
 				if( keyName == 'c' || keyName == 'C') if( ambientLight != undefined ) ambientLight.position.set(camera.position.x, camera.position.y, camera.position.z);
 			});
+
 
 			renderer.setPixelRatio(window.devicePixelRatio);
 			renderer.render(scene, camera);
@@ -392,7 +426,10 @@
 			var heights = [];
 			var colours = [];
 			var i = 0;
-			
+			mins = [0,0,0,0,0,0,0,0,0,0,0], secs = [0,0,0,0,0,0,0,0,0,0,0], ms =[0,0,0,0,0,0,0,0,0,0,0];
+			totalMilliSeconds = [0,0,0,0,0,0,0,0,0,0,0];
+			positionCam = 1;
+
 			var arrow = new THREE.Group();
 			var mat = new THREE.MeshLambertMaterial({ color: 0xdcbeff});
 			
@@ -474,15 +511,14 @@
 				light.shadow.camera.right = ((n+1) * 3);
 				light.shadow.camera.top = ((m+1) * 3);
 				light.shadow.camera.bottom = -((m+1) * 3);
-				
-				light.target.position.set(Math.ceil(((m+sB) * 3 -sB)/ 2)-1,0,Math.ceil(((n+sB) * 3 -sB)/ 2)-1);
+				light.target.position.set(((m+sB) * 3 -sB-1)/2,0,((n+sB) * 3 -sB-1)/2);
 				light.target.updateMatrixWorld();
 				camera.add(light);
 				
 				scene.add(camera,light.target);
 			}if ( ambientLight != undefined) scene.add(ambientLight);
 
-			controls.target = new THREE.Vector3(Math.ceil(((m+sB) * 3 -sB)/ 2)-1,0,Math.ceil(((n+sB) * 3 -sB)/ 2)-1);
+			controls.target = new THREE.Vector3(((m+sB) * 3 -sB-1)/2,0,((n+sB) * 3 -sB-1)/2);
 			controls.enableDamping = true;
 
 			//controls.autoRotate = true;
