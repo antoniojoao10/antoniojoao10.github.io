@@ -1,6 +1,6 @@
 {
-    "name": "password",
-    "short_name": "password",
+    "name": "freepass",
+    "short_name": "freepass",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
